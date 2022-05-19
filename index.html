@@ -1,0 +1,1811 @@
+<!DOCTYPE html>
+<html lang="ko" dir="ltr">
+  <head>
+    <meta charset="utf-8">
+    <title>NeoBlock</title>
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <style media="screen">
+      :root{
+        user-select: none;
+        --progress-background: gray;
+        --progress-fill: red;
+      }
+      body{
+        background-color: black;
+        padding: 0px;;
+        margin: 0px;
+      }
+      body::-webkit-scrollbar{
+        display: none;
+      }
+      progress::-webkit-progress-bar {
+        background-color: var(--progress-background);
+        border-radius: 2.5px;
+      }
+      progress::-webkit-progress-value {
+        background-color: var(--progress-fill);
+        border-radius: 2.5px;
+      }
+      .progressTag {
+        appearance: none;
+        display: block;
+        width: 15px;
+        height: 2.5px;
+        border-radius: 1.25px;
+        color: var(--progress-fill);
+        border: 0.5px solid #eee;
+        position: absolute;
+        top:50%;
+        left:50%;
+        margin-left: -7.5px;
+        margin-top: -1.25px;
+      }
+      span{
+        width: 20px;
+        height: 20px;
+        display:inline-block;
+        margin: 2.5px;
+      }
+      .void{
+        background: transparent;
+        border: 0.5px solid transparent;
+        position: relative;
+        z-index: 20;
+      }
+      .block{
+        background: #888888;
+        border: 0.5px solid white;
+        box-shadow: 0px 0px 7.5px white;
+        z-index: 0;
+      }
+      .goal{
+        background: #000000;
+        border: 0.5px solid white;
+        box-shadow: 0px 0px 7.5px black;
+      }
+      #row{
+        height:26px;
+        width: 275px;
+      }
+      #battlefield{
+        position: absolute;
+        top: 49%;
+        left: 50%;
+        margin-left: -117px;
+        margin-top: -117px;
+      }
+      #sell{
+        background: transparent;
+        width: 225px;
+        height: 75px;
+        border: 0.75px solid white;
+        border-radius: 10px;
+        box-shadow: 0px 0px 2.5px white;
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        margin-left: -117.5px;
+        margin-top: 120px;
+        color: white;
+        text-shadow: 0px 0px 2.5px white;;
+        font-weight: 600;
+        font-size: 0.7em;
+      }
+      legend{
+        background: black;
+      }
+      #main-gameplay{
+        width: 250px;
+        height: 250px;
+        text-align: center;
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        margin-left: -125px;
+        margin-top: -210px;
+        color: white;
+        text-shadow: 0px 0px 2.5px white;;
+        font-weight: 900;
+        font-size: 1.9em;
+      }
+      #lev-gameplay{
+        width: 250px;
+        height: 50px;
+        text-align: center;
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        margin-left: -125px;
+        margin-top: -167.5px;
+        color: white;
+        text-shadow: 0px 0px 2.5px white;;
+        font-weight: 900;
+        font-size: 0.65em;
+      }
+      #phase{
+        width: 75px;
+        height: 15px;
+        text-align: right;
+        color: white;
+        text-shadow: 0px 0px 2.5px white;;
+        font-weight: 550;
+        font-size: 0.5em;
+        position: absolute;
+        padding-left: 55px;
+        padding-top: 1.5px;
+      }
+      #golder{
+        padding-left: 137.5px;
+      }
+      #coin{
+        width: 10px;
+        height: 10px;
+        border: 1.5px solid GoldenRod;
+        background-color: #FFD700;
+        border-radius: 50%;
+        box-shadow: 0px 0px 5px yellow;
+        opacity: 0.8;
+        position: absolute;
+        margin-top: 2.5px;
+      }
+      #gold{
+        padding-top: 1.5px;
+        width: 50px;
+        height: 50px;
+        text-align: right;
+        color: white;
+        text-shadow: 0px 0px 2.5px white;;
+        font-weight: 550;
+        font-size: 0.5em;
+      }
+      #track{
+        width: 150px;
+        height: 15px;
+        position: absolute;
+        left: 50%;
+        top: 50%;
+        margin-left: -65px;
+        margin-top: -145px;
+      }
+      #sellings{
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-top: -15px;
+      }
+      .p-container{
+        flex: 1 0 auto;
+        height: 50px;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding-top: 10px;
+      }
+      .p-name{
+        text-align: center;
+        flex: 1 0 auto;
+        font-size: 0.5em;
+        font-weight: 400;
+        transform: translateY(6px);
+      }
+      .p-price{
+        text-align: center;
+        flex: 1 0 auto;
+        font-size: 0.1em;
+        font-weight: 400;
+        transform: scale(0.7) translateY(5px);
+      }
+      .product{
+        margin-top: 5px;
+        display: inline-block;
+        width: 20px;
+        height: 20px;
+        border: 0.5px solid white;
+        transform: translateX(11.5px);
+      }
+      #Fire-sell{
+        box-shadow: 0px 0px 15px red;
+        transition: 0.5s ease;
+        overflow: auto;
+      }
+      #Fire-sell:hover, #Ice-sell:hover, #Bomb-sell:hover, #Detect-sell:hover, #Spark-sell:hover{
+        opacity: 0.7;
+      }
+      #Bomb-sell{
+        box-shadow: 0px 0px 15px orange;
+        transition: 0.5s ease;
+        overflow: auto;
+      }
+      #Spark-sell{
+        box-shadow: 0px 0px 15px yellow;
+        transition: 0.5s ease;
+        overflow: auto;
+      }
+      #Detect-sell{
+        box-shadow: 0px 0px 15px green;
+        transform: translateX(14px);
+        transition: 0.5s ease;
+        overflow: auto;
+      }
+      #Ice-sell{
+        box-shadow: 0px 0px 15px blue;
+        transition: 0.5s ease;
+        overflow: auto;
+      }
+      .mone{
+        width: 10px;
+        height: 10px;
+        background: white;
+        border-radius: 50%;
+        position: absolute;
+        left: 50%;
+        top: 49%;
+        margin-left: -110.25px;
+        margin-top: -110.25px;
+        border: 0.5px solid white;
+        z-index: 10;
+        transition: 0.3s ease;
+        opacity: 1;
+      }
+      .mtwo{
+        width: 14px;
+        height: 14px;
+        background: #ffffff;
+        border-radius: 50%;
+        position: absolute;
+        left: 50%;
+        top: 49%;
+        margin-left: -112.25px;
+        margin-top: -112.25px;
+        border: 0.5px solid white;
+        z-index: 9;
+        transition: 0.3s ease;
+        opacity: 0.5;
+      }
+      .mthr{
+        width: 10px;
+        height: 10px;
+        background: #bbbbbb;
+        border-radius: 50%;
+        position: absolute;
+        left: 50%;
+        top: 49%;
+        margin-left: -110.25px;
+        margin-top: -110.25px;
+        border: 1px solid white;
+        z-index: 10;
+        transition: 0.3s ease;
+        opacity: 1;
+      }
+      .mfou{
+        width: 14px;
+        height: 14px;
+        background: #bbbbbb;
+        border-radius: 50%;
+        position: absolute;
+        left: 50%;
+        top: 49%;
+        margin-left: -112.25px;
+        margin-top: -112.25px;
+        border: 0.5px solid white;
+        z-index: 8;
+        transition: 0.3s ease;
+        opacity: 0.5;
+      }
+      .mfiv{
+        width: 10px;
+        height: 10px;
+        background: #777777;
+        border-radius: 50%;
+        position: absolute;
+        left: 50%;
+        top: 49%;
+        margin-left: -110.25px;
+        margin-top: -110.25px;
+        border: 1px solid white;
+        z-index: 10;
+        transition: 0.3s ease;
+        opacity: 1;
+      }
+      .msix{
+        width: 14px;
+        height: 14px;
+        background: #777777;
+        border-radius: 50%;
+        position: absolute;
+        left: 50%;
+        top: 49%;
+        margin-left: -112.25px;
+        margin-top: -112.25px;
+        border: 0.5px solid white;
+        z-index: 8;
+        transition: 0.3s ease;
+        opacity: 0.5;
+      }
+      .msev{
+        width: 10px;
+        height: 10px;
+        background: #333333;
+        border-radius: 50%;
+        position: absolute;
+        left: 50%;
+        top: 49%;
+        margin-left: -110.25px;
+        margin-top: -110.25px;
+        border: 1px solid white;
+        z-index: 10;
+        transition: 0.3s ease;
+        opacity: 1;
+      }
+      .meig{
+        width: 14px;
+        height: 14px;
+        background: #333333;
+        border-radius: 50%;
+        position: absolute;
+        left: 50%;
+        top: 49%;
+        margin-left: -112.25px;
+        margin-top: -112.25px;
+        border: 0.5px solid white;
+        z-index: 8;
+        transition: 0.3s ease;
+        opacity: 0.5;
+      }
+      .mnin{
+        width: 10px;
+        height: 10px;
+        background: #000000;
+        border-radius: 50%;
+        position: absolute;
+        left: 50%;
+        top: 49%;
+        margin-left: -110.25px;
+        margin-top: -110.25px;
+        border: 1px solid white;
+        z-index: 10;
+        transition: 0.3s ease;
+        opacity: 1;
+      }
+      .mten{
+        width: 14px;
+        height: 14px;
+        background: #000000;
+        border-radius: 50%;
+        position: absolute;
+        left: 50%;
+        top: 49%;
+        margin-left: -112.25px;
+        margin-top: -112.25px;
+        border: 0.5px solid white;
+        z-index: 8;
+        transition: 0.3s ease;
+        opacity: 0.5;
+      }
+      .hp{
+        width: 30px;
+        height: 7.5px;
+        text-align: left;
+        color: white;
+        font-size: 0.25em;
+        text-shadow: 0px 0px 10px white;
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        margin-left: 102.5px;
+        margin-top: 210px;
+        font-weight: 400;
+        transform: scale(0.9);
+      }
+      .next{
+        width: 2.5px;
+        height: 2.5px;
+        border-top: 2.5px solid white;
+        border-left: 2.5px solid white;
+        border-bottom: 2.5px solid transparent;
+        border-right: 2.5px solid transparent;
+        transform: rotate(135deg);
+        padding-left: 0px;
+        opacity: 0.7;
+        transition: 1s ease;
+      }
+      .nec{
+        width: 12.5px;
+        height: 12.5px;
+        display: flex;
+        align-items: center;
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        margin-top: 210px;
+        margin-left: -120px;
+      }
+      .next:hover{
+        opacity: 1;
+        transform: rotate(135deg) scale(1.1);
+      }
+      .explode-q{
+        display: block;
+        margin: 0;
+        height: 1.5px;
+      }
+      .explode-p{
+        display: inline-block;
+        width: 1.5px;
+        height: 1.5px;
+        opacity: 1;
+        margin: 0;
+      }
+      .cont{
+        display: flex;
+        justify-content: center;
+        width: 37.5px;
+        height: 37.5px;
+        border: 0.5px solid black;
+        padding: 0;
+      }
+      .kee{
+        height: 100px;
+        width: 250px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        justify-content: space-evenly;
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        margin-top: 107.5px;
+        margin-left: -120px;
+      }
+      .parent{
+        width: 25px;
+        height: 5px;
+        background: #F08080;
+        box-shadow: 0px 0px 6px #F08080;
+        position: absolute;
+        top: 49%;
+        left: 50%;
+        margin-top: -132.5px;
+        margin-left: -142.5px;
+        z-index: 1;
+      }
+      .child{
+        width: 25px; /**/
+        height: 3px;
+        background: white;
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        margin-left: -12.5px;
+        margin-top: -1.5px;
+        box-shadow: 0px 0px 6px white;
+      }
+      .textone{
+        position:absolute;
+        color:white;
+        margin-top:20%;
+        font-size:0.5em;
+        font-weight:900;
+      }
+      .texttwo{
+        transform: scale(0.7);
+        position:absolute;
+        color:white;
+        margin-top:29%;
+        font-size:0.25em;
+        font-weight:600;
+      }
+      @media (max-width:499px){
+        #sell{
+          width: 215px;
+        }
+        #track{
+          width: 150px;
+          height: 15px;
+          position: absolute;
+          left: 50%;
+          top: 50%;
+          margin-left: -75px;
+          margin-top: -145px;
+        }
+        .hp{
+          width: 30px;
+          height: 7.5px;
+          text-align: left;
+          color: white;
+          font-size: 0.25em;
+          text-shadow: 0px 0px 10px white;
+          position: absolute;
+          top: 50%;
+          left: 50%;
+          margin-left: 92.5px;
+          margin-top: 210px;
+          font-weight: 400;
+          transform: scale(0.9);
+        }
+        .textone{
+          position:absolute;
+          color:white;
+          margin-top:10%;
+          font-size:0.5em;
+          font-weight:900;
+        }
+        .texttwo{
+          transform: scale(0.7);
+          position:absolute;
+          color:white;
+          margin-top:14%;
+          font-size:0.25em;
+          font-weight:600;
+        }
+        .text-description{
+          position: absolute;
+          top: 50%;
+          left: 50%;
+          width: 140px;
+          margin-left: -70px;
+          margin-top: 10px;
+          text-align: center;
+          font-size: 0.3em;
+          color: white;
+        }
+      }
+      body{
+        overflow: hidden;
+        width: 100vw;
+        height: 100vh;
+        position: fixed;
+      }
+      html{
+        overflow: hidden;
+      }
+      #main-home{
+        width: 250px;
+        height: 250px;
+        text-align: center;
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        margin-left: -125px;
+        margin-top: -210px;
+        color: white;
+        text-shadow: 0px 0px 2.5px white;;
+        font-weight: 900;
+        font-size: 1.9em;
+      }
+      #sub-home{
+        width: 250px;
+        height: 50px;
+        text-align: center;
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        margin-left: -125px;
+        margin-top: -167.5px;
+        color: white;
+        text-shadow: 0px 0px 2.5px white;;
+        font-weight: 900;
+        font-size: 0.65em;
+      }
+      .level-icon{
+        width: 130px;
+        height: 40px;
+        border: 1.5px solid white;
+        box-shadow: 0px 0px 6px white;
+        border-radius: 30px;
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        margin-left: -65.75px;
+        margin-top: -40.75px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        color: white;
+        text-shadow: 0px 0px 6px white;
+        font-size: 0.8em;
+        font-weight: 900;
+        cursor: pointer;
+      }
+      .level-container{
+        width: 300px;
+        height: 300px;
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        margin-left: -150px;
+        margin-top: -100px;
+      }
+      #result{
+        width: 250px;
+        height: 50px;
+        text-align: center;
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        margin-left: -125px;
+        margin-top: -25px;
+        color: white;
+        text-shadow: 0px 0px 2.5px white;;
+        font-weight: 900;
+        font-size: 1.9em;
+      }
+      .tutorial{
+        width: 280px;
+        height: 40px;
+        border: 1.5px solid white;
+        box-shadow: 0px 0px 6px white;
+        border-radius: 30px;
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        margin-left: -140.75px;
+        margin-top: -40.75px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        color: white;
+        text-shadow: 0px 0px 6px white;
+        font-size: 0.6em;
+        font-weight: 900;
+        cursor: pointer;
+        transform: translateY(-90px);
+      }
+      .information{
+        width: 280px;
+        height: 40px;
+        border: 1.5px solid white;
+        box-shadow: 0px 0px 6px white;
+        border-radius: 30px;
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        margin-left: -140.75px;
+        margin-top: -40.75px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        color: white;
+        text-shadow: 0px 0px 6px white;
+        font-size: 0.6em;
+        font-weight: 600;
+        cursor: pointer;
+        transform: translateY(210px);
+      }
+      .wordBubble{
+        width: 150px;
+        height: 50px;
+        border: 2px solid white;
+        box-shadow: 0px 0px 6px white;
+        border-radius: 10px;
+        background: black;
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        margin-top: -25px;
+        margin-left: -75px;
+        z-index: 202;
+      }
+      .wordBubble-inner{
+        width: 10px;
+        height: 10px;
+        border-top: 2px solid white;
+        border-left: 2px solid white;
+        background: black;
+        position: absolute;
+        bottom: -7.5px;
+        left: 10%;
+        transform: rotate(-135deg);
+      }
+      .text-description{
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        width: 140px;
+        margin-left: -70px;
+        margin-top: -20px;
+        text-align: center;
+        font-size: 0.3em;
+        color: white;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="wordBubble">
+      <div class='text-description'>1<br/>2<br/>3</div>
+      <div class="wordBubble-inner"></div>
+    </div>
+    <div id='result'>Fail</div>
+    <div id='home'>
+      <div id='main-home'>NeoBlock</div>
+      <div id='sub-home'>Defense Game</div>
+      <div class="tutorial" onclick="play(8)">Tutorial</div>
+      <div class="level-container">
+        <div class="level-icon" id='level-one' style="transform: translateX(-75px) translateY(-80px);" onclick="play(0)">1</div>
+        <div class="level-icon" id='level-two' style="transform: translateX(75px) translateY(-80px);" onclick="play(1)">2</div>
+        <div class="level-icon" id='level-three' style="transform: translateX(-75px) translateY(-20px);" onclick="play(2)">3</div>
+        <div class="level-icon" id='level-four' style="transform: translateX(75px) translateY(-20px);" onclick="play(3)">4</div>
+        <div class="level-icon" id='level-five' style="transform: translateX(-75px) translateY(40px);" onclick="play(4)">5</div>
+        <div class="level-icon" id='level-six' style="transform: translateX(75px) translateY(40px);" onclick="play(5)">6</div>
+        <div class="level-icon" id='level-seven' style="transform: translateX(-75px) translateY(100px);" onclick="play(6)">7</div>
+        <div class="level-icon" id='level-eight' style="transform: translateX(75px) translateY(100px);" onclick="play(7)">8</div>
+      </div>
+      <div class="information" onclick="alert('부딪히면서 배우자')">Information</div>
+    </div>
+    <script type="text/javascript">
+      //from here: variations and functions
+      function rand(x,y){
+        return Math.floor(Math.random()*(y-x))+x;
+      }
+      function sele(a){
+        return (document.querySelector(a))
+      }
+      function divi(a, b){
+        document.write("<div class='"+a+"' id='"+b+"'></div>")
+      }
+      function span(a, b){
+        document.write("<span class='"+a+"' id='"+b+"'></span>")
+      }
+      let type=[
+        [
+          [1, 1, 1, 1, 0, 0, 0, 0, 0, 0],
+          [1, 0, 0, 1, 1, 1, 1, 0, 0, 0],
+          [1, 0, 0, 1, 0, 0, 1, 1, 1, 0],
+          [1, 0, 0, 1, 0, 0, 0, 0, 1, 0],
+          [1, 1, 1, 1, 1, 1, 1, 1, 1, 0],
+          [1, 0, 0, 0, 0, 0, 0, 0, 1, 0],
+          [1, 1, 1, 1, 1, 1, 1, 0, 1, 0],
+          [0, 0, 0, 1, 0, 0, 1, 0, 1, 0],
+          [0, 0, 0, 1, 1, 1, 1, 1, 2, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        ],
+        [
+          [1, 1, 1, 1, 1, 1, 1, 1, 1, 0],
+          [1, 0, 1, 0, 1, 0, 1, 0, 1, 0],
+          [1, 1, 1, 1, 1, 1, 1, 1, 1, 0],
+          [1, 0, 1, 0, 1, 0, 1, 0, 1, 0],
+          [1, 1, 1, 1, 1, 1, 1, 1, 1, 0],
+          [1, 0, 1, 0, 1, 0, 1, 0, 1, 0],
+          [1, 1, 1, 1, 1, 1, 1, 1, 1, 0],
+          [1, 0, 1, 0, 1, 0, 1, 0, 1, 0],
+          [1, 1, 1, 1, 1, 1, 1, 1, 2, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        ],
+        [
+          [1, 1, 1, 1, 0, 0, 0, 0, 0, 0],
+          [1, 0, 0, 1, 1, 0, 0, 0, 0, 0],
+          [1, 0, 0, 0, 1, 0, 0, 0, 0, 0],
+          [1, 1, 0, 0, 1, 1, 1, 0, 0, 0],
+          [0, 1, 0, 0, 0, 0, 1, 1, 0, 0],
+          [0, 1, 1, 1, 2, 0, 0, 1, 1, 0],
+          [0, 0, 1, 0, 0, 0, 0, 0, 1, 0],
+          [0, 0, 1, 1, 0, 0, 0, 0, 1, 0],
+          [0, 0, 0, 1, 1, 1, 1, 1, 2, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        ],
+        [
+          [1, 1, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 1, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 1, 1, 1, 1, 1, 1, 1, 0, 0],
+          [0, 1, 1, 1, 1, 1, 1, 1, 0, 0],
+          [0, 1, 0, 0, 0, 0, 0, 1, 0, 0],
+          [0, 1, 1, 1, 1, 1, 1, 1, 0, 0],
+          [0, 1, 1, 1, 1, 1, 1, 1, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 1, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 1, 2, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        ],
+        [
+          [1, 1, 1, 1, 1, 1, 1, 0, 0, 0],
+          [1, 0, 1, 0, 0, 0, 1, 0, 0, 0],
+          [1, 1, 1, 1, 1, 1, 1, 1, 0, 0],
+          [0, 1, 0, 0, 0, 1, 0, 1, 0, 0],
+          [0, 1, 1, 1, 0, 1, 1, 1, 0, 0],
+          [0, 1, 0, 1, 0, 0, 0, 1, 0, 0],
+          [0, 1, 1, 1, 1, 1, 1, 1, 0, 0],
+          [0, 0, 0, 0, 0, 1, 0, 1, 0, 0],
+          [0, 0, 0, 0, 0, 1, 1, 1, 2, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        ],
+        [
+          [1, 1, 1, 1, 1, 1, 1, 1, 1, 0],
+          [1, 1, 1, 1, 1, 1, 1, 1, 2, 0],
+          [0, 0, 1, 1, 0, 1, 1, 0, 0, 0],
+          [0, 0, 1, 1, 0, 1, 1, 0, 0, 0],
+          [0, 0, 1, 1, 0, 1, 1, 0, 0, 0],
+          [0, 0, 1, 1, 0, 1, 1, 0, 0, 0],
+          [0, 0, 1, 1, 0, 1, 1, 0, 0, 0],
+          [0, 1, 1, 2, 0, 1, 1, 0, 1, 0],
+          [1, 1, 2, 0, 0, 0, 1, 1, 2, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        ],
+        [
+          [1, 1, 1, 1, 0, 0, 0, 0, 0, 0],
+          [1, 0, 0, 1, 1, 1, 0, 0, 0, 0],
+          [1, 0, 0, 1, 0, 1, 1, 1, 0, 0],
+          [1, 1, 1, 1, 0, 0, 0, 1, 1, 0],
+          [0, 1, 0, 1, 1, 1, 1, 0, 1, 0],
+          [0, 1, 0, 1, 0, 0, 1, 1, 1, 0],
+          [0, 1, 0, 1, 1, 1, 1, 0, 1, 0],
+          [0, 1, 0, 1, 0, 0, 1, 0, 1, 0],
+          [0, 1, 1, 1, 1, 1, 1, 1, 2, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        ],
+        [
+          [1, 1, 0, 0, 0, 0, 0, 0, 0, 0],
+          [1, 1, 1, 1, 1, 1, 1, 1, 0, 0],
+          [0, 1, 0, 0, 0, 0, 0, 1, 0, 0],
+          [0, 1, 0, 0, 0, 0, 0, 1, 0, 0],
+          [0, 1, 0, 0, 0, 0, 0, 1, 0, 0],
+          [0, 1, 0, 0, 0, 0, 0, 1, 0, 0],
+          [0, 1, 0, 0, 0, 0, 0, 1, 0, 0],
+          [0, 1, 1, 1, 1, 1, 1, 1, 1, 0],
+          [0, 0, 0, 0, 0, 0, 0, 1, 2, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        ],
+        [
+          [1, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [1, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [1, 1, 1, 1, 1, 1, 1, 0, 0, 0],
+          [1, 0, 1, 0, 1, 0, 1, 0, 0, 0],
+          [1, 1, 1, 0, 1, 1, 1, 0, 0, 0],
+          [0, 0, 1, 0, 0, 0, 1, 0, 0, 0],
+          [0, 0, 1, 1, 1, 0, 1, 1, 1, 0],
+          [0, 0, 1, 0, 1, 0, 1, 0, 1, 0],
+          [0, 0, 1, 1, 1, 1, 1, 1, 2, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        ]
+      ];
+      let monsters = [
+        [
+          [2, 0, 1, 0, 0, 0, 0, 0, 0 ,0],
+          [3, 0, 2, 0, 0, 0, 0, 0, 0 ,0],
+          [3, 0, 1, 0, 2, 0, 0, 0, 0 ,0],
+          [2, 0, 1, 0, 5, 0, 0, 0, 0 ,0],
+          [1, 0, 1, 0, 1, 0, 7, 0, 0 ,0],
+          [3, 2, 3, 0, 0, 0, 0, 0, 0 ,0],
+          [2, 3, 5, 0, 2, 0, 1, 0, 0 ,0],
+          [3, 5, 0, 1, 4, 0, 1, 0, 0 ,0],
+          [2, 8, 0, 2, 2, 0, 2, 0, 0 ,0],
+          [1, 10, 0, 0, 0, 1, 0, 0, 0 ,0],
+          [4, 10, 0, 1, 3, 2, 0, 1, 2 ,0],
+          [4, 10, 0, 1, 3, 2, 0, 1, 1 ,1]
+        ],
+        [
+          [3, 0, 0, 0, 0, 0, 0, 0, 0 ,0],
+          [3, 3, 0, 0, 0, 0, 0, 0, 0 ,0],
+          [3, 3, 3, 0, 0, 0, 0, 0, 0 ,0],
+          [3, 3, 3, 3, 0, 0, 0, 0, 0 ,0],
+          [3, 3, 3, 3, 3, 0, 0, 0, 0 ,0],
+          [3, 3, 3, 3, 3, 0, 0, 0, 0 ,0],
+          [3, 3, 3, 3, 3, 3, 0, 0, 0 ,0],
+          [3, 3, 3, 3, 3, 3, 3, 0, 0 ,0],
+          [3, 3, 3, 3, 3, 3, 3, 3, 0 ,0],
+          [3, 3, 3, 3, 3, 3, 3, 3, 3 ,0],
+          [3, 3, 3, 3, 3, 3, 3, 3, 3 ,3]
+        ],
+        [
+          [0, 3, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 3, 0, 2, 0, 0, 0, 0, 0, 0],
+          [0, 5, 0, 5, 0, 0, 0, 0, 0, 0],
+          [0, 7, 0, 6, 0, 0, 4, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 6, 3, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0, 2],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0, 4],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0, 6],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0, 8],
+          [0, 0, 0, 0, 0, 0, 0, 0, 0, 10]
+        ],
+        [
+          [10, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [10, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 10, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 10, 0, 0, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 10, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 10, 0, 0, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 10, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 10, 0, 0, 0],
+          [0, 0, 0, 0, 0, 0, 0, 0, 10, 0]
+        ],
+        [
+          [40, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [40, 0, 40, 0, 0, 0, 0, 0, 0, 0],
+          [40, 0, 40, 0, 40, 0, 0, 0, 0, 0],
+          [40, 0, 40, 0, 40, 0, 40, 0, 40, 0],
+          [40, 0, 40, 0, 40, 0, 40, 0, 40, 0]
+        ],
+        [
+          [1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
+        ],
+        [
+          [2, 0, 1, 0, 0, 0, 0, 0, 0 ,0],
+          [3, 0, 2, 0, 0, 0, 0, 0, 0 ,0],
+          [3, 0, 1, 0, 2, 0, 0, 0, 0 ,0],
+          [2, 0, 1, 0, 5, 0, 0, 0, 0 ,0],
+          [1, 0, 1, 0, 1, 0, 7, 0, 0 ,0],
+          [3, 2, 3, 0, 0, 0, 0, 0, 0 ,0],
+          [2, 3, 5, 0, 2, 0, 1, 0, 0 ,0],
+          [3, 5, 0, 1, 4, 0, 1, 0, 0 ,0],
+          [2, 8, 0, 2, 2, 0, 2, 0, 0 ,0],
+          [1, 10, 0, 0, 0, 1, 0, 0, 0 ,0],
+          [4, 10, 0, 1, 3, 2, 0, 1, 2 ,0],
+          [4, 10, 0, 1, 3, 2, 0, 1, 1 ,1]
+        ],
+        [
+          [0, 0, 0, 0, 1, 0, 1, 0, 1, 0],
+          [40, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [40, 0, 40, 0, 0, 0, 0, 0, 0, 0],
+          [40, 0, 40, 0, 40, 0, 0, 0, 0, 0],
+          [40, 0, 40, 0, 40, 0, 40, 0, 40, 0],
+          [40, 0, 40, 0, 40, 0, 40, 0, 40, 0]
+        ],
+        [
+          [40, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+          [1, 0, 1, 0, 1, 0, 1, 0, 1, 0],
+          [0, 1, 0, 1, 0, 1, 0, 1, 0, 1],
+          [2, 0, 2, 0, 2, 0, 2, 0, 2, 0],
+          [0, 3, 0, 3, 0, 3, 0, 3, 0, 3]
+        ]
+      ];
+      let golds = [10000, 9000, 15000, 25000, 30000, 314159, 10000, 100, 10000]
+      let copy = [];
+      for(y=0;y<10;y++){
+        copy.push([]);
+        for(x=0;x<10;x++){
+          copy[y].push(0);
+        }
+      };
+      for(y=0;y<10;y++){
+        for(x=0;x<10;x++){
+          copy[y][x]=type[0][y][x];
+        }
+      }
+      let copy_t = [];
+      for(y=0;y<10;y++){
+        copy_t.push([]);
+        for(x=0;x<10;x++){
+          copy_t[y].push(0);
+        }
+      }
+      let abc = "abcdefghji"
+      let klm = "klmnopqrstuvwxyzABCDEFGHJIKLMNOPQRSTUVWXYZ"
+      let counteritems = ['Fire', 'Bomb', 'Spark', 'Detect', 'Ice']
+      let counterprice = [300, 500, 800, 1000, 1500]
+      let interval_sources = [];
+      let suums = [];
+      let ids = [];
+      let y_sources = []
+      let x_sources = []
+      let hp_sources = []
+      let hp_sources_definer = []
+      let Gold_sources = [];
+      let Gold = 10000;
+      let cursele = null;
+      let cre = "";
+      let nowlev = 0;
+      let finlev = 1;
+      let pan = "";
+      let cou = "";
+      var curselcol = "white";
+      let mobileTouchIdentifier = 0;
+      let identifier=-2;
+      let colors = ['#F08080', '#FFA07A', '#FCF4A3', 'lightgreen', 'lightblue'];
+      let levpoint = 0;
+      let wavpoint = 0;
+      let levfinishpoint = 0;
+      let tolex=0;
+      let toley=0;
+      let hp = 3;
+      let newid = 0;
+      let need;
+      let movpoint = 0;
+      let moving = 26.25;
+      let curbuy = -1;
+      let allfill = 0;
+      let curid = '';
+      let montype = [];
+      let finishpoint = 0;
+      let fire_damaged = 0;
+      let spark_damaged = 0;
+      let bomb_term = 0;
+      let reqlvuG = 0;
+      let iceAtkDefiner = [];
+      let controlSuum = 0;
+      let mterm = [];
+      for (x=0;x<10;x++){
+        mterm.push([]);
+      }
+      let mgold = [100, 110, 200, 220, 500, 550, 800, 880, 1000, 1100]
+      let mhp = [10, 10, 20, 20, 50, 50, 80, 80, 200, 200]
+      let mstlye = ['mone', 'mtwo', 'mthr', 'mfou', 'mfiv', 'msix', 'msev', 'meig', 'mnin', 'mten']
+      let mtermdef = [2, 2, 2, 2, 3, 3, 3, 3, 3, 3]
+      let spark_spread = 0;
+      let mDetect = [];
+      for(x=0;x<10;x++){
+        if(x%2==0){
+          mDetect.push(0);
+        }else{
+          mDetect.push((x+1)/2);
+        }
+      }
+      let turnAng = 0;
+      let lazer_ = "";
+      let icon_inner_ = "";
+      let abcprime_='abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
+      let colorsprime_ = [
+        ['transparent', 'cyan'],
+        ['transparent', '#F08080'],
+        ['transparent', '#FFA07A'],
+        ['transparent', 'lightyellow'],
+        ['transparent', 'lightgreen'],
+        ['transparent', 'lightblue']
+      ];
+      let quit = [
+        [0, 0, 0, 0, 1, 1, 0, 0, 0, 0],
+        [0, 0, 1, 1, 0, 0, 1, 1, 0, 0],
+        [0, 1, 0, 0, 0, 0, 0, 1, 1, 0],
+        [0, 1, 0, 0, 0, 0, 1, 0, 1, 0],
+        [1, 0, 0, 0, 0, 1, 0, 0, 0, 1],
+        [1, 0, 0, 0, 1, 0, 0, 0, 0, 1],
+        [0, 1, 0, 1, 0, 0, 0, 0, 1, 0],
+        [0, 1, 1, 0, 0, 0, 0, 0, 1, 0],
+        [0, 0, 1, 1, 0, 0, 1, 1, 0, 0],
+        [0, 0, 0, 0, 1, 1, 0, 0, 0, 0]
+      ]
+      let upgrade = [
+        [0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0],
+        [0, 0, 0, 1, 1, 1, 1, 1, 0, 0, 0],
+        [0, 0, 1, 1, 1, 1, 1, 1, 1, 0, 0],
+        [0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0],
+        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 1, 1, 1, 1, 1, 0, 0, 0],
+        [0, 1, 0, 1, 1, 1, 1, 1, 0, 1, 0],
+        [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+        [1, 0, 0, 1, 1, 1, 1, 1, 0, 0, 1],
+        [0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0],
+        [0, 0, 1, 1, 1, 1, 1, 1, 1, 0, 0]
+      ]
+      let repair = [
+        [0, 0, 1, 1, 0, 0, 0, 1, 1, 0, 0],
+        [0, 1, 1, 1, 1, 0, 1, 0, 0, 0, 0],
+        [1, 1, 1, 1, 1, 0, 1, 0, 0, 0, 1],
+        [1, 1, 1, 1, 0, 0, 0, 1, 0, 0, 1],
+        [0, 1, 1, 0, 1, 0, 1, 0, 1, 1, 0],
+        [0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0],
+        [0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0],
+        [0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0],
+        [0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0],
+        [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+      ];
+      let upneedG = 0;
+      let toolpoint=0;
+      let customer_style = "z-index:200;cursor:pointer;width:35px;height:35px;border:1px solid white;border-radius:50%;display:flex;flex-direction:column;align-items:center;justify-content:center;box-shadow:0px 0px 6px cyan;";
+      let tutorialProgress=0;
+      let tutorialWords=[
+        ['', 'NeoBlock is the Tower', '', '', 'These are the towers', '', 'Fire: 300G', 'Bomb: 500G', 'Spark: 800G', 'Ice: 1500G', 'Click the tower from counter', '', 'Hp of the monster', 'Click the tower on the', 'Transparent mosters need', ''],
+        ['Welcome to NeoBlock.', 'Defense Game played on a ', 'These are the monsters', 'They must not reach the goal.', 'which will help you', 'You can buy them here.', 'Short term, 2dam', 'Long term, 3dam', 'Short term, 2.5dam', 'Slow down', 'and click again at the field', 'Press for the next wave. ', 'increases as', 'board to level up', 'Detect(green) tower', 'Try your best!'],
+        ['', '9x9 table.', '', '', 'to eliminate monsters.', '', '9x9', '9x9, target all', '4x4, splash', '9x9', 'to build it. ', '', 'it gets darker. ', 'or destroy it. ', 'to be hit', ''],
+        [0, 0, -52, -52, -24, -35, -24, 85, 30, 138, -35, -65, -52, 0, -52, 0],
+        [0, 0, -155, -155, -80, 80, -80, -80, 20, 20, 80, 170, -155, 0, -155, 0]
+      ]
+      if(screen.width > 499){
+        tutorialWords[0][10]='';
+        tutorialWords[1][10]='Drag to place it.';
+        tutorialWords[2][10]=''
+      }
+      function IwantToSpeak(){
+        sele('.wordBubble').style.display='';
+        sele('.text-description').innerHTML=tutorialWords[0][tutorialProgress]+'<br>'+tutorialWords[1][tutorialProgress]+'<br>'+tutorialWords[2][tutorialProgress];
+        sele('.wordBubble').style.transform="translateX("+String(tutorialWords[3][tutorialProgress])+"px) translateY("+String(tutorialWords[4][tutorialProgress])+"px)"
+      }
+      window.addEventListener('click', function tutorial(){
+        if(levpoint==8){
+          sele('.wordBubble').style.display='none';
+          if(tutorialProgress<tutorialWords[0].length){
+            if(tutorialProgress<10){
+              IwantToSpeak();
+            }
+            switch (tutorialProgress) {
+              case 0:
+                sele('.wordBubble-inner').style.display='none'
+                break;
+              case 2:
+                sele('.wordBubble-inner').style.display=''
+                wave(levpoint, wavpoint);
+                movpoint=0;
+                break;
+              case 3:
+                movpoint=1;
+                setTimeout(function(){
+                  movpoint=0;
+                }, 1000);
+                break;
+              case 6:
+                movpoint=1;
+                setTimeout(function(){
+                  movpoint=0;
+                }, 5000);
+                break;
+              case 7:
+                movpoint=1;
+                setTimeout(function(){
+                  movpoint=0;
+                }, 5000);
+                break;
+              case 8:
+                movpoint=1;
+                setTimeout(function(){
+                  movpoint=0;
+                }, 1000);
+                break;
+              case 9:
+                movpoint=1;
+                setTimeout(function(){
+                  movpoint=1;
+                }, 1000);
+                setTimeout(function(){
+                  movpoint=1;
+                }, 5000);
+                break;
+              case 10:
+                sele('.nec').style.display='none';
+                if(movpoint==0){
+                  sele('.nec').style.display='none';
+                  IwantToSpeak();
+                  tutorialProgress++;
+                  setTimeout(tutorial, 1000)
+                }
+                break;
+              case 11:
+                if(movpoint==0){
+                  IwantToSpeak();
+                  tutorialProgress++;
+                }
+                sele('.nec').style.display='';
+                break;
+              case 12:
+                if(movpoint==1){
+                    movpoint=0;
+                    IwantToSpeak();
+                    tutorialProgress++;
+                    setTimeout(function(){
+                      movpoint=1;
+                    }, 500);
+                }
+                sele('.nec').style.display='';
+                break;
+              case 13:
+                if(movpoint==0){
+                  IwantToSpeak();
+                  tutorialProgress++;
+                }
+                sele('.nec').style.display='';
+                break;
+              case 14:
+                if(movpoint==1){
+                    movpoint=0;
+                    IwantToSpeak();
+                    tutorialProgress++;
+                    setTimeout(function(){
+                      movpoint=1;
+                    }, 500);
+                  }
+                break;
+              case 15:
+                IwantToSpeak();
+                tutorialProgress++;
+                sele('.wordBubble-inner').style.display='none';
+              default:
+                break;
+            }
+            if(tutorialProgress<10){
+              tutorialProgress++;
+            }
+          }
+        }
+      });
+      sele('.wordBubble').style.display='none';
+      function rearrange(){
+        for(y=0;y<9;y++){
+          for(x=0;x<9;x++){
+            if(copy[y][x]!==0 && copy[y][x]!==1 && copy[y][x]!==2){
+              sele('#'+abc[y]+abc[x]).style='opacity: 1;box-shadow: 0px 0px 10px white;border: 0.5px solid white;';
+              sele('#'+abc[y]+abc[x]).style.background=colors[copy[y][x]-3];
+              sele('#'+abc[y]+abc[x]).innerHTML="<div style='font-weight:900;font-size:0.8em;color:black;-webkit-text-stroke:0.5px white;width:10px;height:10px;position:absolute;top:50%;left:50%;margin-left:-5px;margin-top:-5px;text-align:center;'><div style='margin-top: -3px;'>"+copy_t[y][x]+"</div></div>"
+            }else if(copy[y][x]==0){
+              sele('#'+abc[y]+abc[x]).style='opacity: 1;box-shadow: 0px 0px 10px transparent;border: 0.5px solid transparent;';
+              sele('#'+abc[y]+abc[x]).style.background='transparent';
+              sele('#'+abc[y]+abc[x]).innerHTML=""
+            }else if(copy[y][x]==1){
+              sele('#'+abc[y]+abc[x]).style='opacity: 1;box-shadow: 0px 0px 10px white;border: 0.5px solid white;';
+              sele('#'+abc[y]+abc[x]).style.background='gray';
+              sele('#'+abc[y]+abc[x]).innerHTML=""
+            }
+            else if(copy[y][x]==2){
+              sele('#'+abc[y]+abc[x]).style='opacity: 1;box-shadow: 0px 0px 10px white;border: 0.5px solid white;';
+              sele('#'+abc[y]+abc[x]).style.background='black';
+              sele('#'+abc[y]+abc[x]).innerHTML=""
+            }
+          }
+        }
+      }
+      function dragStart(e){
+          curselcol=colors[identifier];
+      }
+      function drag(e){
+      }
+      function dragleave(e){
+        rearrange();
+        if(String(curid).length==1){
+          curid = '0'+String(curid);
+        }
+        if(copy[String(curid)[0]][String(curid)[1]]==0){
+          e.style='background: transparent;opacity: 1;box-shadow: 0px 0px 0px white;';
+        }
+      }
+      function dragover(e){
+        if(String(curid).length==1){
+          curid = '0'+String(curid);
+        }
+        if(copy[String(curid)[0]][String(curid)[1]]==0 && counterprice[identifier] <= Gold){
+          event.preventDefault();
+          e.style='opacity: 0.5;box-shadow: 0px 0px 10px white;';
+          e.style.background=curselcol;
+        }
+      }
+      function drop(e){
+        if(String(curid).length==1){
+          curid = '0'+String(curid);
+        }
+        if(copy[String(curid)[0]][String(curid)[1]]==0 && counterprice[identifier] <= Gold && movpoint==0 && toolpoint==0){
+          e.style='opacity: 1;box-shadow: 0px 0px 20px white;border: 1px solid white;';
+          e.style.background=curselcol;
+          e.innerHTML="<div style='font-weight:600;font-size:0.5em;color:white;-webkit-text-stroke:0.5px black;width:10px;height:10px;position:absolute;top:50%;left:50%;margin-left:-5px;margin-top:-5px;text-align:center;'>1</div>"
+          curselcol='white';
+          copy[String(curid)[0]][String(curid)[1]]=identifier+3;
+          Gold-=counterprice[identifier];
+          sele('#gold').innerHTML=Gold;
+          copy_t[String(curid)[0]][String(curid)[1]]=1;
+          rearrange();
+          mobileTouchIdentifier++;
+          let mobileTouchInterval = setTimeout(function(){
+            mobileTouchIdentifier--;
+          }, 301)
+        }
+      }
+      function wave(level, round){
+        need = monsters[level][round];
+        sele('.next').style.display='none';
+        for(x=0;x<counteritems.length;x++){
+          sele('#'+counteritems[x]+'-sell').draggable=NaN;
+          sele('#'+counteritems[x]+'-sell').cursor='auto';
+        }
+        for(creation=0;creation<need.length;creation++){
+          for(newlife=0;newlife<need[creation];newlife++){
+            newid = '#'+abc[creation]+klm[newlife];
+            hp_sources_definer.push(0);
+            x_sources.push(0);
+            y_sources.push(0);
+            ids.push(newid);
+            iceAtkDefiner.push(0);
+            montype.push(creation);
+            Gold_sources.push(mgold[creation]);
+            hp_sources.push(mhp[creation]);
+            for(term=0;term<10;term++){
+              if(term==creation){
+                mterm[term].push(0);
+              }else{
+                mterm[term].push('-')
+              }
+            }
+            cre+="<div class='"+mstlye[creation]+"' id='"+abc[creation]+klm[newlife]+"'><progress value='"+mhp[creation]+"' max='"+mhp[creation]+"' class='progressTag' id='"+abc[creation]+klm[newlife]+"-hp'></progress></div>";
+            finishpoint++;
+          }
+        }
+        sele(".mons").innerHTML=cre;
+        cre="";
+        levpoint = level;
+        movpoint = 1;
+        controlSuum = finishpoint;
+        sele('#phase').innerHTML='Wave: '+String(wavpoint+1)+' / '+String(levfinishpoint)+'';
+      }
+      function ifDetect(gradeLev){
+        if(gradeLev==0){
+          return true;
+        }
+        for(yayyy=0;yayyy<9;yayyy++){
+          for(xayyy=0;xayyy<9;xayyy++){
+            if(copy[yayyy][xayyy]==6 && copy_t[yayyy][xayyy]>=gradeLev){
+              return true;
+            }
+          }
+        }
+        return false;
+      }
+      function firedam(lev){
+        return 2*(1+(lev-1)/5)**2;
+      }
+      function bombdam(lev){
+        return 3*(1+(lev-1)/5)**2;
+      }
+      function sparkdam(lev){
+        return 2.5*(1+(lev-1)/5)**2;
+      }
+      function iceslow(lev){
+        return (1/(lev+1));
+      }
+      function lazer(dD, fX, fY, tX, tY, lazerColor){
+        if(fX==tX){
+          turnAng=90
+        }else if(fY==tY){
+          turnAng=0;
+        }else if((fX-tX)*(fY-tY)>0){
+          turnAng=45
+        }else if((fX-tX)*(fY-tY)<0){
+          turnAng=135
+        }
+        sele('#'+dD).innerHTML="<div class='parent' style='background: "+lazerColor+";box-shadow: 0px 0px 6px "+lazerColor+";opacity: 0.8;transform: translateX("+String(13*(fX+tX))+"px) translateY("+String(13*(fY+tY))+"px) rotate("+String(turnAng)+"deg);'><div class='child'></div></div>";
+        blah = setTimeout(function(){
+          sele('#'+dD).innerHTML='';
+        }, 150)
+      }
+      function move(){
+        if(movpoint == 1){
+          for(x=0;x<suums.length;x++){
+            i = ids[x]
+            if(hp_sources_definer[x]==0){
+              if(mterm[montype[x]][x]%mtermdef[montype[x]]>=0 && mterm[montype[x]][x]%mtermdef[montype[x]]<0.1){
+                if(copy[y_sources[x]+1][x_sources[x]]==1 && copy[y_sources[x]][x_sources[x]+1]==1){
+                  if(rand(0, 2)==1){
+                    y_sources[x]=y_sources[x]+1;
+                    tolex = x_sources[x]*moving;
+                    toley = y_sources[x]*moving;
+                    sele(i).style='transform:translate('+tolex+'px, '+toley+'px);'
+                  }else{
+                    x_sources[x]=x_sources[x]+1;
+                    tolex = x_sources[x]*moving;
+                    toley = y_sources[x]*moving;
+                    sele(i).style='transform:translate('+tolex+'px, '+toley+'px);'
+                  }
+                }else if(copy[y_sources[x]+1][x_sources[x]]==1){
+                  y_sources[x]=y_sources[x]+1;
+                  tolex = x_sources[x]*moving;
+                  toley = y_sources[x]*moving;
+                  sele(i).style='transform:translate('+tolex+'px, '+toley+'px);'
+                }else if(copy[y_sources[x]][x_sources[x]+1]==1){
+                  x_sources[x]=x_sources[x]+1;
+                  tolex = x_sources[x]*moving;
+                  toley = y_sources[x]*moving;
+                  sele(i).style='transform:translate('+tolex+'px, '+toley+'px);'
+                }else if(copy[y_sources[x]+1][x_sources[x]]==2 || copy[y_sources[x]][x_sources[x]+1]==2){
+                  y_sources[x]=y_sources[x]+1;
+                  tolex = x_sources[x]*moving;
+                  toley = y_sources[x]*moving;
+                  sele(i).parentNode.removeChild(sele(i));
+                  if(hp_sources_definer[x] !== 1){
+                    hp--;
+                  }
+                  sele('.hp').innerHTML='Hp: '+hp;
+                  finishpoint--;
+                  hp_sources_definer[x]=1;
+                };
+              };
+            };
+            if(hp_sources[x] <= 0 && hp_sources_definer[x] == 0){
+              sele(i).style='display:none;';
+              hp_sources[x]=-100000000;
+              hp_sources_definer[x]=1;
+              finishpoint--;
+              Gold+=Gold_sources[x];
+              sele('#gold').innerHTML=Gold;
+            };
+            if(finishpoint==0){
+              movpoint = 0;
+            }
+          }
+          if(movpoint==0){
+            x_sources = [];
+            y_sources = [];
+            suums = [];
+            ids = [];
+            hp_sources = [];
+            hp_sources_definer = [];
+            montype = [];
+            mterm = [];
+            for(term=0;term<10;term++){
+              mterm.push([]);
+            }
+            Gold_sources = [];
+            wavpoint++;
+            sele('.next').style.display='block';
+            for(x=0;x<counteritems.length;x++){
+              sele('#'+counteritems[x]+'-sell').draggable='true';
+              sele('#'+counteritems[x]+'-sell').cursor='pointer';
+            }
+            if(levfinishpoint==wavpoint && hp>0){
+              sele('#game').style.display='none';
+              sele('#result').style.display='';
+              sele('#result').innerHTML='You Won'
+              let resultProceed = setTimeout(function(){
+                sele('#result').style.display='none';
+                sele('#home').style.display='';
+              }, 2000)
+            }else if(hp<=0){
+              sele('#game').style.display='none';
+              sele('#result').style.display='';
+              sele('#result').innerHTML='You Lost'
+              let resultProceed = setTimeout(function(){
+                sele('#result').style.display='none';
+                sele('#home').style.display='';
+              }, 2000)
+            }
+          }
+          for(z=0;z<suums.length;z++){
+            mterm[montype[z]][z]++;
+            for(lazer_for=0;lazer_for<6;lazer_for++){
+              lazer_+="<div id='"+abcprime_[z]+abcprime_[lazer_for]+abcprime_[z]+abcprime_[lazer_for]+"-lazer'></div>"
+            }
+          }
+          sele('#lazers').innerHTML=lazer_;
+          lazer_="";
+        }
+      }
+      function enemyCheck(x, y, z){
+        if(x_sources[z]-1==x && y_sources[z]+1==y || x_sources[z]+1==x && y_sources[z]+1==y || y_sources[z]-1==y && x_sources[z]-1==x || y_sources[z]+1==y && x_sources[z]-1==x){
+          return ifDetect(mDetect[montype[z+1]]);
+        }else if(x_sources[z]-1==x && y_sources[z]==y || x_sources[z]+1==x && y_sources[z]==y || y_sources[z]-1==y && x_sources[z]==x || y_sources[z]+1==y && x_sources[z]==x){
+          return ifDetect(mDetect[montype[z]]);
+        }
+      }
+      function smallEnemyCheck(x, y, z){
+        if(x_sources[z]-1==x && y_sources[z]==y || x_sources[z]+1==x && y_sources[z]==y || y_sources[z]-1==y && x_sources[z]==x || y_sources[z]+1==y && x_sources[z]==x){
+          return ifDetect(mDetect[montype[z]]);
+        }
+      }
+      let lazer_usage_one=0;
+      let lazer_usage_two=0;
+      function tower_effect(){
+        if(movpoint==1){
+          for(y=0;y<9;y++){
+            for(x=0;x<9;x++){
+              if(copy[y][x]==3){
+                for(z=0;z<suums.length;z++){
+                  if(hp_sources_definer[z]==0 && fire_damaged == 0){
+                    if(enemyCheck(x, y, z)){
+                      hp_sources[z] = hp_sources[z]-firedam(copy_t[y][x]);
+                      sele(ids[z]+'-hp').value=hp_sources[z];
+                      lazer(abcprime_[lazer_usage_one]+abcprime_[lazer_usage_two]+abcprime_[lazer_usage_one]+abcprime_[lazer_usage_two]+'-lazer', x+1, y+1, x_sources[z]+1, y_sources[z]+1, colors[0])
+                      if(lazer_usage_two==5){
+                        lazer_usage_one++;
+                        lazer_usage_two=0;
+                      }else{
+                        lazer_usage_two++;
+                      }
+                      fire_damaged=1;
+                    }
+                  }
+                }
+                fire_damaged=0;
+              }else if(copy[y][x]==4 && bomb_term%2==0){
+                for(z=0;z<suums.length;z++){
+                  if(hp_sources_definer[z]==0){
+                    if(enemyCheck(x, y, z)){
+                      hp_sources[z] = hp_sources[z]-bombdam(copy_t[y][x]);
+                      sele(ids[z]+'-hp').value=hp_sources[z];
+                      lazer(abcprime_[lazer_usage_one]+abcprime_[lazer_usage_two]+abcprime_[lazer_usage_one]+abcprime_[lazer_usage_two]+'-lazer', x+1, y+1, x_sources[z]+1, y_sources[z]+1, colors[1])
+                      if(lazer_usage_two==5){
+                        lazer_usage_one++;
+                        lazer_usage_two=0;
+                      }else{
+                        lazer_usage_two++;
+                      }
+                    }
+                  }
+                }
+              }else if(copy[y][x]==5){
+                for(z=0;z<suums.length;z++){
+                  if(hp_sources_definer[z]==0 && spark_damaged == 0){
+                    if(smallEnemyCheck(x, y, z)){
+                      hp_sources[z] = hp_sources[z]-sparkdam(copy_t[y][x]);
+                      sele(ids[z]+'-hp').value=hp_sources[z];
+                      lazer(abcprime_[lazer_usage_one]+abcprime_[lazer_usage_two]+abcprime_[lazer_usage_one]+abcprime_[lazer_usage_two]+'-lazer', x+1, y+1, x_sources[z]+1, y_sources[z]+1, colors[2])
+                      if(lazer_usage_two==5){
+                        lazer_usage_one++;
+                        lazer_usage_two=0;
+                      }else{
+                        lazer_usage_two++;
+                      }
+                      spark_damaged=1;
+                      for(newz=0;newz<suums.length;newz++){
+                        if(smallEnemyCheck(x_sources[z], y_sources[z], newz) && spark_spread==0){
+                          hp_sources[newz] = hp_sources[newz]-sparkdam(copy_t[y][x]);
+                          sele(ids[newz]+'-hp').value=hp_sources[newz];
+                          lazer(abcprime_[lazer_usage_one]+abcprime_[lazer_usage_two]+abcprime_[lazer_usage_one]+abcprime_[lazer_usage_two]+'-lazer', x_sources[z]+1, y_sources[z]+1, x_sources[newz]+1, y_sources[newz]+1, colors[2])
+                          if(lazer_usage_two==5){
+                            lazer_usage_one++;
+                            lazer_usage_two=0;
+                          }else{
+                            lazer_usage_two++;
+                          }
+                          spark_spread++;
+                        }
+                      }
+                      spark_spread=0;
+                    }
+                  }
+                }
+                spark_damaged=0;
+              }else if(copy[y][x]==7){
+                for(z=0;z<suums.length;z++){
+                  if(hp_sources_definer[z]==0){
+                    if(enemyCheck(x, y, z)){
+                      if(iceAtkDefiner[z]<copy_t[y][x]){
+                        mterm[0][z] = mterm[0][z]-iceslow(copy_t[y][x]);
+                        mterm[1][z] = mterm[1][z]-iceslow(copy_t[y][x]);
+                        iceAtkDefiner[z]=copy_t[y][x];
+                      }
+                    }
+                  }
+                }
+              }
+              bomb_term++;
+            }
+          }
+          for(i=0;i<iceAtkDefiner.length;i++){
+            iceAtkDefiner[i]=0;
+          }
+          lazer_usage_one=0;
+          lazer_usage_two=0;
+        }
+      }
+      function quit_(iden, explocol){
+        document.querySelector('#explode'+iden).style=customer_style;
+        icon_inner_+="<div style='margin-top: -30px;'>";
+        for(y=0;y<10;y++){
+          icon_inner_+="<div class='explode-q'/>"
+          for(x=0;x<10;x++){
+            icon_inner_+="<div class='explode-p' style='box-shadow: 0px 0px 6px "+colorsprime_[explocol][quit[y][x]]+";background:"+colorsprime_[explocol][quit[y][x]]+"'></div>"
+          }
+          icon_inner_+='</div>'
+        }
+        icon_inner_+="</div>";
+        icon_inner_+="<div class='textone'>Quit</div>";
+        icon_inner_+="<div class='texttwo'>X</div>";
+        document.querySelector('#explode'+iden).innerHTML=icon_inner_;
+        icon_inner_ = "";
+      }
+      function upgrade_(iden, explocol){
+        document.querySelector('#explode'+iden).style=customer_style;
+        icon_inner_+="<div style='margin-top: -30px;'>";
+        for(y=0;y<12;y++){
+          icon_inner_+="<div class='explode-q'/>"
+          for(x=0;x<11;x++){
+            icon_inner_+="<div class='explode-p' style='box-shadow: 0px 0px 6px "+colorsprime_[explocol][upgrade[y][x]]+";background:"+colorsprime_[explocol][upgrade[y][x]]+"'></div>"
+          }
+          icon_inner_+='</div>';
+        }
+        icon_inner_+="</div>";
+        icon_inner_+="<div class='textone'>Upgrade</div>";
+        icon_inner_+="<div class='texttwo' id='upg-c'>"+upneedG+"</div>";
+        document.querySelector('#explode'+iden).innerHTML=icon_inner_;
+        icon_inner_ = "";
+      }
+      function repair_(iden, explocol){
+        document.querySelector('#explode'+iden).style=customer_style;
+        icon_inner_+="<div style='margin-top: -30px;'>";
+        for(y=0;y<11;y++){
+          icon_inner_+="<div class='explode-q'/>"
+          for(x=0;x<11;x++){
+            icon_inner_+="<div class='explode-p' style='box-shadow: 0px 0px 6px "+colorsprime_[explocol][repair[y][x]]+";background:"+colorsprime_[explocol][repair[y][x]]+"'></div>"
+          }
+          icon_inner_+='</div>';
+        }
+        icon_inner_+="</div>";
+        icon_inner_+="<div class='textone'>Remove</div>";
+        icon_inner_+="<div class='texttwo'>10G</div>";
+        document.querySelector('#explode'+iden).innerHTML=icon_inner_;
+        icon_inner_ = "";
+      }
+      function tower_tool_appear(){
+        quit_('c', 0);
+        upgrade_('a', 0);
+        repair_('b', 0);
+        sele('#sellings').style.display='none';
+        toolpoint=1;
+      }
+      function tower_tool_disappear(){
+        sele('#explodea').style.display='none';
+        sele('#explodeb').style.display='none';
+        sele('#explodec').style.display='none';
+        sele('#sellings').style.display='';
+        for(y=0;y<9;y++){
+          for(x=0;x<9;x++){
+            sele('#'+abc[y]+abc[x]).style.opacity='1';
+          }
+        }
+        toolpoint=0;
+      }
+      function change(iden){
+        if(String(iden).length==1){
+          iden = '0'+String(iden);
+        }
+        curid=iden;
+        if(copy_t[String(curid)[0]][String(curid)[1]]!==0 && copy_t[String(curid)[0]][String(curid)[1]]!==6 && mobileTouchIdentifier==0){
+          tower_tool_appear();
+          if(toolpoint>1){
+            toolpoint=1;
+          }
+          for(y=0;y<9;y++){
+            for(x=0;x<9;x++){
+              sele('#'+abc[y]+abc[x]).style.opacity='0.5';
+            }
+          }
+          sele('#'+abc[String(curid)[0]]+abc[String(curid)[1]]).style.opacity='1';
+          if(copy_t[String(curid)[0]][String(curid)[1]]==5){
+            sele('#explodea').style.opacity='0.5';
+          }
+          if(Gold < 10){
+            sele('#explodeb').style.opacity='0.5';
+          }
+          reqlvuG = counterprice[copy[String(curid)[0]][String(curid)[1]]-3]/2+counterprice[copy[String(curid)[0]][String(curid)[1]]-3]/10*(copy_t[String(curid)[0]][String(curid)[1]]-1);
+          if(copy_t[String(curid)[0]][String(curid)[1]]==5){
+            reqlvuG='-';
+          }
+          sele('#upg-c').innerHTML=reqlvuG;
+        };
+      }
+      function destroy(){
+        if(Gold >=10){
+          Gold-=10;
+          sele('#gold').innerHTML=Gold;
+          sele('#'+abc[String(curid)[0]]+abc[String(curid)[1]]).style='';
+          sele('#'+abc[String(curid)[0]]+abc[String(curid)[1]]).innerHTML='';
+          copy_t[String(curid)[0]][String(curid)[1]]=0;
+          copy[String(curid)[0]][String(curid)[1]]=0;
+          tower_tool_disappear();
+        }
+      }
+      function levup(){
+        if(Gold >= reqlvuG && copy_t[String(curid)[0]][String(curid)[1]] <= 4){
+          Gold-=reqlvuG;
+          sele('#gold').innerHTML=Gold;
+          copy_t[String(curid)[0]][String(curid)[1]]+=1;
+          rearrange();
+          change(curid);
+        }
+      }
+      function play(level){
+        pan='';
+        for(y=0;y<9;y++){
+          pan+="<div id='row'>";
+          for (x=0;x<9;x++){
+            if(type[level][y][x]==1){
+              pan+="<span class='block' id='"+abc[y]+abc[x]+"'></span>"
+            }else if(type[level][y][x]==0){
+              pan+="<span class='void' id='"+abc[y]+abc[x]+"' onclick='change("+String(y)+String(x)+")' ontouchend='curid="+String(y)+String(x)+";drop("+String(abc[y]+abc[x])+")' droppable='true' ondragleave='dragleave("+String(abc[y]+abc[x])+")' ondragover='curid="+String(y)+String(x)+";dragover("+String(abc[y]+abc[x])+")' ondrop='drop("+String(abc[y]+abc[x])+")'></span>";
+            }else if(type[level][y][x]==2){
+              pan+="<span class='goal' id='"+abc[y]+abc[x]+"'></span>"
+            };
+          }
+          pan+="</div>"
+        }
+        sele('#battlefield').innerHTML=pan;
+        sele('#game').style.display='';
+        sele('#home').style.display='none';
+        hp=3;
+        if(level==8){
+          hp=30;
+        }
+        sele('.hp').innerHTML='Hp: '+hp;
+        levpoint=level;
+        wavpoint=0;
+        levfinishpoint=monsters[level].length;
+        Gold=golds[level]
+        sele('#lev-gameplay').innerHTML='lev. '+String(levpoint+1)
+        sele('#gold').innerHTML=Gold;
+        sele('#phase').innerHTML='Wave: '+String(wavpoint+1)+' / '+String(levfinishpoint)+'';
+        copy=[];
+        copy_t=[];
+        for(y=0;y<10;y++){
+          copy.push([]);
+          for(x=0;x<10;x++){
+            copy[y].push(0);
+          }
+        };
+        for(y=0;y<10;y++){
+          for(x=0;x<10;x++){
+            copy[y][x]=type[levpoint][y][x];
+          }
+        }
+        for(y=0;y<10;y++){
+          copy_t.push([]);
+          for(x=0;x<10;x++){
+            copy_t[y].push(0);
+          }
+        }
+        if(toolpoint==1){
+          tower_tool_disappear();
+        }
+        toolpoint=0;
+        if(level==8){
+          sele('#lev-gameplay').innerHTML='Tutorial'
+          copy[3][1]=3;
+          copy[3][5]=4;
+          copy[7][3]=5;
+          copy[7][7]=7;
+          copy_t[3][1]=1;
+          copy_t[3][5]=1;
+          copy_t[7][3]=1;
+          copy_t[7][7]=1;
+        }
+        rearrange();
+      }
+      //from here: gameboard creation
+      document.write("<div id='game'>")
+      document.write("<div class='kee' ><div id='explodea' onclick='levup();'></div><div id='explodeb' onclick='destroy();'></div><div id='explodec' onclick='tower_tool_disappear();'></div></div>")
+      document.write("<div class='nec'><div class='next' onclick='wave(levpoint, wavpoint)'></div></div><div class='hp'></div>")
+      divi('main-gameplay', 'main-gameplay');
+      divi('lev-gameplay', 'lev-gameplay');
+      document.write("<div id='track'>")
+      divi('phase', 'phase');
+      document.write("<div id='golder'>")
+      divi('coin', 'coin');
+      divi('gold', 'gold');
+      document.write("</div></div>")
+      sele('#main-gameplay').innerHTML='NeoBlock';
+      sele('#lev-gameplay').innerHTML='lev. '+String(levpoint+1)
+      sele('#gold').innerHTML=Gold;
+      sele('#phase').innerHTML='Wave: '+String(wavpoint+1)+' / '+String(levfinishpoint)+'';
+      document.write("<div id='battlefield'>");
+      for(y=0;y<9;y++){
+        pan+="<div id='row'>";
+        for (x=0;x<9;x++){
+          if(type[0][y][x]==1){
+            pan+="<span class='block' id='"+abc[y]+abc[x]+"'></span>"
+          }else if(type[0][y][x]==0){
+            pan+="<span class='void' id='"+abc[y]+abc[x]+"' onclick='change("+String(y)+String(x)+")' ontouchend='curid="+String(y)+String(x)+";drop("+String(abc[y]+abc[x])+")' droppable='true' ondragleave='dragleave("+String(abc[y]+abc[x])+")' ondragover='curid="+String(y)+String(x)+";dragover("+String(abc[y]+abc[x])+")' ondrop='drop("+String(abc[y]+abc[x])+")'></span>";
+          }else if(type[0][y][x]==2){
+            pan+="<span class='goal' id='"+abc[y]+abc[x]+"'></span>"
+          };
+        }
+        pan+="</div>"
+      }
+      document.write(pan);
+      document.write('</div>');
+      document.write("<fieldset id='sell' style='z-index: 100;'><legend>Counter</legend>");
+      document.write("<div id='sellings'>")
+        for(x=0;x<counteritems.length;x++){
+          cou+="<div class='p-container' id='"+counteritems[x]+"'>";
+          cou+="<div class='p-name' id='"+counteritems[x]+"-title'>"+counteritems[x]+"</div>";
+          cou+="<div class='p-price' id='"+counteritems[x]+"-price'>"+counterprice[x]+"</div>";
+          cou+="<div class='product' id='"+counteritems[x]+"-sell' draggable='true'  ontouchstart='identifier="+x+";dragStart("+String(counteritems[x])+");' ondragstart='identifier="+x+";dragStart("+String(counteritems[x])+");' ontouchmove='drag("+String(counteritems[x])+")' ondrag='drag("+String(counteritems[x])+")'></div>";
+          cou+="</div>"
+        }
+        document.write(cou);
+        for(x=0;x<counteritems.length;x++){
+          sele('#'+counteritems[x]+'-sell').style='z-index: 200;background: '+colors[x];+';'
+        }
+      document.write("</div>")
+      document.write("</fieldset>");
+      sele('.hp').innerHTML='Hp: '+hp;
+      divi('mons', 'mons');
+      divi('lazers', 'lazers');
+      document.write("</div>")
+      //playin function
+      sele('#game').style.display='none';
+      sele('#result').style.display='none';
+      let asdf = setInterval(function(){
+        if(suums.length<controlSuum && movpoint==1){
+          suums.push(0);
+        }
+      }, 400)
+      interval_sources[0] = setInterval(function a(){
+        move();
+        tower_effect();
+      }, 200);
+    </script>
+  </body>
+</html>
